@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Guess The Number Game</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/3.1.9/signalr.min.js"></script>
+</head>
+<body>
+  <input type="text" id="guess" placeholder="Enter your guess..." />
+  <button onclick="sendGuess()">Guess</button>
+
+  <ul id="messagesList"></ul>
+
+  <script>
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("/gameHub")
+        .build();
+
+    connection.on("ReceiveMessage", function (message) {
+        const li = document.createElement("li");
+        li.textContent = message;
+        document.getElementById("messagesList").appendChild(li);
+    });
+
+    connection.start().catch(function (err) {
+        return console.error(err.toString());
+    });
+
+    function sendGuess() {
+        const guess = document.getElementById("guess").value;
+        connection.invoke("GuessNumber", parseInt(guess)).catch(function (err) {
+            return console.error(err.toString());
+        });
+        event.preventDefault();
+    }
+  </script>
+</body>
+</html>
